@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 
@@ -10,7 +11,7 @@ import (
 )
 
 type Post struct {
-	Id string `json:Id`
+	Id string `json:"Id"`
 	Title string `json:"Title"`
 	Content string `json:"Content"`
 	Summary string `json:"Summary"`
@@ -32,14 +33,55 @@ func getSinglePost(w http.ResponseWriter, r *http.Request) {
 	paras := mux.Vars(r)
 	id := paras["id"]
 
-	fmt.Fprintf(w, "ID: " + id )
+	for _, post := range Blog {
+		if post.Id == id {
+			json.NewEncoder(w).Encode(post)
+		}
+	}
+}
+
+func createNewPost(w http.ResponseWriter, r *http.Request) {
+	req, _ := ioutil.ReadAll(r.Body)
+	var post Post
+	json.Unmarshal(req, &post)
+	Blog = append(Blog, post)
+	json.NewEncoder(w).Encode(post)
+}
+
+func deletePost(w http.ResponseWriter, r *http.Request) {
+	paras := mux.Vars(r)
+	id := paras["id"]
+
+	for i, post := range Blog {
+		if post.Id == id {
+			Blog = append(Blog[:i], Blog[i + 1:]...)
+		}
+	}
+}
+
+func updatePost(w http.ResponseWriter, r *http.Request) {
+	req, _ := ioutil.ReadAll(r.Body)
+	var rPost Post
+	json.Unmarshal(req, &rPost)
+
+	paras := mux.Vars(r)
+	id := paras["id"]
+
+	for i, post := range Blog {
+		if post.Id == id {
+			Blog[i] = rPost
+		}
+	}
 }
 
 func handleRequests() {
 	r := mux.NewRouter().StrictSlash(true)
 	r.HandleFunc("/", homePage)
 	r.HandleFunc("/blog", getAllPosts)
-	r.HandleFunc("/blog/{id}", getSinglePost)
+	r.HandleFunc("/blog/{id}", getSinglePost).Methods("GET")
+	r.HandleFunc("/blog/post", createNewPost)
+	r.HandleFunc("/blog/{id}", deletePost).Methods("DELETE")
+	r.HandleFunc("/blog/{id}", updatePost).Methods("PUT")
 	log.Fatal(http.ListenAndServe(":10000", r))
 }
 
