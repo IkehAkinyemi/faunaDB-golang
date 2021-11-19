@@ -32,15 +32,15 @@ func homePage(w http.ResponseWriter, r *http.Request) {
 }
 
 func getSinglePost(w http.ResponseWriter, r *http.Request) {
-	client := f.NewFaunaClient("fnAEYRolCWACTEED7DnXPbR-4dLKvMSH2KwYPywG")
-	// Create a class to store profiles
+	client := f.NewFaunaClient("secret-api-keyG")
+	// Create a class to store Blog
 	_, _ = client.Query(f.CreateClass(f.Obj{"name": "Blog"}))
 
 	req, _ := ioutil.ReadAll(r.Body)
 	var post Post
 	json.Unmarshal(req, &post)
 
-	// Retrieve profile by its ID
+	// Retrieve post by its ID
 	value, _ := client.Query(f.Get(postId))
 	_ = value.At(data).Get(&post)
 
@@ -48,15 +48,15 @@ func getSinglePost(w http.ResponseWriter, r *http.Request) {
 }
 
 func createNewPost(w http.ResponseWriter, r *http.Request) {
-	client := f.NewFaunaClient("fnAEYRolCWACTEED7DnXPbR-4dLKvMSH2KwYPywG")
-	// Create a class to store profiles
+	client := f.NewFaunaClient("secret-api-keyG")
+	// Create a class to store Blog
 	_, _ = client.Query(f.CreateClass(f.Obj{"name": "Blog"}))
 
 	req, _ := ioutil.ReadAll(r.Body)
 	var post Post
 	json.Unmarshal(req, &post)
 
-	// Save profile at FaunaDB
+	// Save post at FaunaDB
 	newProfile, _ := client.Query(
 		f.Create(
 			f.Class("Blog"),
@@ -64,7 +64,7 @@ func createNewPost(w http.ResponseWriter, r *http.Request) {
 		),
 	)
 
-	// Get generated profile ID
+	// Get generated post ID
 	_ = newProfile.At(ref).Get(&postId)
 
 	Blog = append(Blog, post)
@@ -72,20 +72,20 @@ func createNewPost(w http.ResponseWriter, r *http.Request) {
 }
 
 func deletePost(w http.ResponseWriter, r *http.Request) {
-	client := f.NewFaunaClient("fnAEYRolCWACTEED7DnXPbR-4dLKvMSH2KwYPywG")
-	// Create a class to store profiles
+	client := f.NewFaunaClient("secret-api-keyG")
+	// Create a class to store Blog
 	_, _ = client.Query(f.CreateClass(f.Obj{"name": "Blog"}))
 
-	// Delete profile using its ID
+	// Delete post using its ID
 	_, _ = client.Query(f.Delete(postId))
 }
 
 func updatePost(w http.ResponseWriter, r *http.Request) {
-	client := f.NewFaunaClient("fnAEYRolCWACTEED7DnXPbR-4dLKvMSH2KwYPywG")
-	// Create a class to store profiles
+	client := f.NewFaunaClient("secret-api-keyG")
+	// Create a class to store Blog
 	_, _ = client.Query(f.CreateClass(f.Obj{"name": "Blog"}))
 
-	// Update existing profile entry
+	// Update existing post entry
 	_, _ = client.Query(
 		f.Update(
 			postId,
